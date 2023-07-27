@@ -1,0 +1,5 @@
+/venv
+/.vscode
+/raw_assets
+/scripts
+/**/__pycache__
