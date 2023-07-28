@@ -1,12 +1,11 @@
 from src.utils.constants import ZERO_VECTOR
-from ..StateMachine.StateMachine import StateMachine
 from ..StateMachine.State import State
 from ..enum import EnemyBehaviorStates
 from .EnemyMoveState import *
-from ..utils.utils import distance2v
+from ..utils.utils import distance2v, random_pos_in_radius
 import random
 import pygame
-import math
+
 
 empty_res = {
     'velocity': pygame.Vector2(),
@@ -25,16 +24,14 @@ class EnemyBehaviourIdleState(State):
         self.idleStateCounter = None
         self.walkingDest = None
         self.runIdleState()
-        
-    def entry(self,**kwargs) :
-        # print("aagaya bc")
+
+    def entry(self, **kwargs):
         self.idleStateCounter = random.randint(3, 5)
         self.walkingDest = None
         self.states = {
-            'idle':True,
-            'walk':False
+            'idle': True,
+            'walk': False
         }
-    
 
     def runIdleState(self):
         self.turnStateOnAndOthersOff('idle')
@@ -42,18 +39,7 @@ class EnemyBehaviourIdleState(State):
 
     def runWalkState(self, pos):
         self.turnStateOnAndOthersOff('walk')
-        self.walkingDest = self.generateRandomPos(pos)
-
-    def generateRandomPos(self, pos):
-        temp = [[50, 850, 150], [50, 550, 100]]
-        newPos = [0, 0]
-        for i in range(len(newPos)):
-            l, h, r = temp[i]
-            r1, r2 = int(pos[i]-r), int(pos[i]+r)
-            r1 = max(min(r1, h), l)
-            r2 = max(min(r2, h), l)
-            newPos[i] = random.randint(r1, r2)
-        return pygame.math.Vector2(newPos)
+        self.walkingDest = random_pos_in_radius(pos)
 
     def turnStateOnAndOthersOff(self, onState):
         for state in self.states.keys():
@@ -113,7 +99,7 @@ class EnemyBehaviourChaseState(State):
 
     def internalStateUpdate(self, pos, player_pos):
         kwargs = {
-            'isWalking':True
+            'isWalking': True
         }
         velocity = player_pos - pos
         return {
@@ -141,11 +127,11 @@ class EnemyBehaviourChaseState(State):
             self.next_state = EnemyBehaviorStates.HURT
         else:
             self.stateChangeUpdate(pos, player_pos)
-            if self.done :
+            if self.done:
                 return {
-                    'velocity':ZERO_VECTOR,
-                    'kwargs' : {
-                        'isDoneWalking':True
+                    'velocity': ZERO_VECTOR,
+                    'kwargs': {
+                        'isDoneWalking': True
                     }
                 }
         res = self.internalStateUpdate(pos, player_pos)
@@ -181,7 +167,7 @@ class EnemyBehaviourAttackState(State):
             "kwargs": kwargs
         }
 
-    def clear(self):
+    def exit(self, **kwargs):
         self.enter = True
 
     def stateChangeUpdate(self, pos, player_pos):
@@ -200,7 +186,6 @@ class EnemyBehaviourAttackState(State):
         else:
             self.stateChangeUpdate(pos, player_pos)
         if self.done:
-            self.clear()
             return {
                 'velocity': ZERO_VECTOR,
                 'kwargs': {
@@ -216,7 +201,7 @@ class EnemyBehaviourHurtState(State):
     def __init__(self):
         super().__init__(EnemyBehaviorStates.HURT,
                          [EnemyBehaviorStates.IDLE])
-        self.cooldown = 2
+        self.cooldown = None
         self.enter = True
         self.direction = None
 
@@ -231,8 +216,8 @@ class EnemyBehaviourHurtState(State):
     def update(self, **kwargs):
         res = {
             'velocity': pygame.math.Vector2(self.direction, 0),
-            'bypass_direction' : True,
-            'speed':5,
+            'bypass_direction': True,
+            'speed': 5,
             'kwargs': {}
         }
         if self.enter:
@@ -245,6 +230,5 @@ class EnemyBehaviourHurtState(State):
             self.done = True
             self.next_state = EnemyBehaviorStates.IDLE
             res['kwargs']['isDoneBeingHurt'] = True
-            
-        # print(res['velocity'])
+
         return res

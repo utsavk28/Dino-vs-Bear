@@ -14,10 +14,7 @@ class Map:
         self.screen = pygame.display.get_surface()
         self.generate_tiles()
 
-        # print(len(self.tiles),len(self.tiles[0]))
-
     def generate_tiles(self):
-        # count = 0
         for i in range(10):
             temp = []
             for j in range(15):
@@ -30,7 +27,6 @@ class Map:
                     'image': tile_image,
                     'rect': tile_rect
                 })
-                # count = (count+1)%8
             self.tiles.append(temp)
 
     def render(self):

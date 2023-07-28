@@ -10,8 +10,10 @@ class StateMachine :
         res = self.current_state_exec.update(**kwargs)
         if self.current_state_exec.done :
             res_exit = self.current_state_exec.exit(**kwargs)
+            if res_exit is None :
+                res_exit = {}
             self.switch_state()    
-            res_entry = self.current_state_exec.entry(**res_exit,**kwargs)
+            self.current_state_exec.entry(**res_exit,**kwargs)
             
         return res
     

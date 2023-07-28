@@ -15,7 +15,6 @@ class Sprite :
         self.load_image()
         self.rect = self.image.get_rect(center=pos)
         self.screen = pygame.display.get_surface()
-        # self.health_rect.
         
     def clear(self) :
         self.reset_frame_idx()
@@ -32,10 +31,6 @@ class Sprite :
             self.reset_frame_idx()
 
         self.load_image()
-        # pygame.draw.circle(self.screen,"#ffffff",self.rect.center,96,1)
-        # pygame.draw.circle(self.screen,"#ffffff",self.rect.center,192,1)
-        # pygame.draw.rect(self.screen,"#ffffff",self.full_health)
-        # pygame.draw.rect(self.screen,"#8a0303",self.red_health)
         image = pygame.transform.flip(self.image,direction == -1,False)
         self.screen.blit(image,self.rect)
         
